@@ -64,12 +64,34 @@ function gamestate_t:new()
 	return setmetatable({}, self)
 end
 
-function gamestate_t:extend()
-	local newState = setmetatable({}, self)
+--- @param name string
+function gamestate_t:extend(name)
+	local newState = setmetatable({name = name}, self)
 	newState.__index = newState
 	registerMetatable(newState)
 
 	return newState
+end
+
+--- implement functions into the state
+--- does not override previous code in functions
+function gamestate_t:implement(...)
+	for _, funcs in ipairs({...}) do
+		for key, value in pairs(funcs) do
+			if type(value) == "function" then
+				local oldFunc = self[key]
+				self[key] = function(self, ...)
+					if oldFunc then
+						oldFunc(self, ...)
+					end
+
+					return value(self, ...)
+				end
+			else
+				self[key] = value
+			end
+		end
+	end
 end
 
 for _, hookName in ipairs(hooks) do
@@ -87,6 +109,11 @@ end
 for _, hookName in ipairs(hudHooks) do
 	gamestate_t[hookName.."HUD"] = function() end
 end
+
+-- custom hooks to work shit out
+
+function gamestate_t:PlayerDamage(player, inflictor, source, damage, flags) end
+function gamestate_t:PlayerDeath(player, inflictor, source, damage, flags) end
 
 function FH:dispatchStateHook(hookName, ...)
 	local state = self.game.state
@@ -120,6 +147,7 @@ for _, hookName in ipairs(hudHooks) do
 	---@diagnostic disable-next-line: param-type-mismatch
 	addHook("HUD", function(...)
 		local state = FH.game.state
+
 		if not state then
 			return
 		end
