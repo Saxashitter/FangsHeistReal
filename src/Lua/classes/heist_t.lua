@@ -7,6 +7,10 @@ registerMetatable(heist_t)
 --- @type mobj_t|nil
 heist_t.sign = nil
 
+--- if the player has escaped
+--- @type boolean
+heist_t.escaped = false
+
 --- //////////////////
 --- // PLAYER SETUP //
 --- //////////////////

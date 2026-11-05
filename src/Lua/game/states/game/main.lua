@@ -52,6 +52,18 @@ function state:ThinkFrame()
 		if player.cmd.buttons & BT_TOSSFLAG and player.heist.sign then
 			signFuncs.dropSign(player)
 		end
+		
+		-- not sure if this is a good place for this? -pac
+		-- not sure where else i'd place it anyways :P -pac
+		if player.heist.escaped
+		and player.mo then
+			player.pflags = $ | PF_FULLSTASIS
+
+			player.mo.momx = 0
+			player.mo.momy = 0
+			player.mo.momz = 0
+			player.mo.alpha = 0
+		end
 	end
 end
 

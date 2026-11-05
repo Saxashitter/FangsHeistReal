@@ -2,10 +2,11 @@ local funcs = {}
 
 function funcs.spawnEscapeRing()
 	-- TODO: actually do proper spawn stuff that's not shit placeholder
-	for player in players.iterate do
-		if not (player.mo and player.mo.valid) then continue end
-
-		P_SpawnMobjFromMobj(player.mo, 0, 0, player.mo.height + 16*FU, MT_FH_ESCAPERING)
-		return
+	for thing in mapthings.iterate do
+		if thing.type == 1 then
+			P_SpawnMobj(thing.x*FU, thing.y*FU, thing.z*FU + 64*FU + P_FloorzAtPos(thing.x*FU, thing.y*FU, ONFLOORZ, 32*FU), MT_FH_ESCAPERING)
+		end
 	end
 end
+
+return funcs
