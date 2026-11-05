@@ -36,7 +36,6 @@ function funcs.setupSign(sign, x, y, z)
 	board.target = sign
 	board.state = S_SIGNBOARD
 	board.movedir = ANGLE_90
-	board.renderflags = $|FF_PAPERSPRITE
 	
 	
 	if not sign.target then
@@ -45,7 +44,7 @@ function funcs.setupSign(sign, x, y, z)
 		A_SignPlayer(sign, -1, 0)
 	end
 
-	board.dispoffset = sign.dispoffset + 1
+	board.dispoffset = sign.dispoffset + 10
 	
 	return sign
 end
@@ -55,6 +54,7 @@ end
 --- @param sign mobj_t
 --- @param pmo mobj_t
 function funcs.grabSign(sign, pmo)
+	local game = FH.game
 	local grabbed_mobj = P_SpawnMobjFromMobj(sign, 0, 0, 0, grabbed)
 
 	grabbed_mobj.target = pmo
@@ -67,6 +67,10 @@ function funcs.grabSign(sign, pmo)
 
 	pmo.player.heist.sign = grabbed_mobj
 	funcs.setupSign(grabbed_mobj)
+
+	if FH.game.state and FH.game.state.SignGrabbed then
+		FH.game.state:SignGrabbed(pmo.player, grabbed_mobj)
+	end
 
 	-- play sounds, start escape, remove flags etc
 
@@ -85,6 +89,8 @@ function funcs.dropSign(player)
 	or not sign.valid then
 		return
 	end
+
+	player.heist.sign = nil
 
 	local idle_mobj = funcs.setupSign(nil, sign.x, sign.y, sign.z)
 
