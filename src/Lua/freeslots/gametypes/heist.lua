@@ -3,7 +3,7 @@ G_AddGametype{
     identifier = "fh_heist",
     typeoflevel = TOL_COOP, -- freeslot("TOL_ESCAPE"),
 	---@diagnostic disable-next-line: undefined-global
-	rules = GTR_SPAWNENEMIES|GTR_NOTITLECARD|GTR_SPECTATORS,
+	rules = GTR_SPAWNENEMIES|GTR_NOTITLECARD|GTR_SPECTATORS|GTR_NOSPECTATORSPAWN,
 	---@diagnostic disable-next-line: undefined-global
     intermissiontype = int_none,
     headercolor = 103,
