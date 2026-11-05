@@ -114,6 +114,19 @@ end
 
 function gamestate_t:PlayerDamage(player, inflictor, source, damage, flags) end
 function gamestate_t:PlayerDeath(player, inflictor, source, damage, flags) end
+function gamestate_t:PlayerPreThink(player) end
+function gamestate_t:PlayerThinkFrame(player) end
+function gamestate_t:PlayerPostThink(player) end
+function gamestate_t:PlayerMobjThink(player) end
+function gamestate_t:SignGrabbed(player, sign) end
+
+local noHooks = {
+	["PreThinkFrame"] = true,
+	["ThinkFrame"] = true,
+	["PostThinkFrame"] = true,
+	["PlayerQuit"] = true,
+	["PlayerJoin"] = true
+}
 
 function FH:dispatchStateHook(hookName, ...)
 	local state = self.game.state
@@ -125,6 +138,8 @@ function FH:dispatchStateHook(hookName, ...)
 end
 
 local function registerStateHook(hookName, ...)
+	if noHooks[hookName] then return end
+
 	addHook(hookName, function(...)
 		return FH:dispatchStateHook(hookName, ...)
 	end, ...)
@@ -155,5 +170,40 @@ for _, hookName in ipairs(hudHooks) do
 		return state[hookName.."HUD"](state, ...)
 	end, hookName)
 end
+
+-- thinkframe, prethinkframe, and postthinkframe get their own manual hooks here so we can call PlayerThinkFrame and whatever
+addHook("PreThinkFrame", function()
+	local game = FH.game
+	local state = game.state
+
+	if not game.state then return end
+
+	game.state:PreThinkFrame()
+	for player in players.iterate do
+		game.state:PlayerPreThink(player)
+	end
+end)
+addHook("ThinkFrame", function()
+	local game = FH.game
+	local state = game.state
+
+	if not game.state then return end
+
+	game.state:ThinkFrame()
+	for player in players.iterate do
+		game.state:PlayerThinkFrame(player)
+	end
+end)
+addHook("PostThinkFrame", function()
+	local game = FH.game
+	local state = game.state
+
+	if not game.state then return end
+
+	game.state:PostThinkFrame()
+	for player in players.iterate do
+		game.state:PlayerPostThink(player)
+	end
+end)
 
 return gamestate_t

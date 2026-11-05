@@ -2,7 +2,6 @@
 local state = {}
 
 function state:gameHUD(v, player, camera)
-    print("ran?")
     local game = FH.game
 
     if not game.escape then

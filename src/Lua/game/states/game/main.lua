@@ -1,6 +1,7 @@
 --- @type fh_gamestate_t
 local super = FH:require("classes/gamestate_t.lua")
 local signFuncs = FH:require("freeslots/objects/sign/funcs.lua")
+local vector = FH:require("libs/common/vector3.lua")
 
 --- @class fh_gamestate_game_t : fh_gamestate_t
 local state = super:extend("GameState")
@@ -17,6 +18,7 @@ function state:new()
 
 	game.tics = 10 * TICRATE
 	game.escape = false
+	game.ringLocations = {}
 
 	return state
 end
@@ -25,10 +27,12 @@ function state:MapLoad()
 	-- setup objects here
 	print("hi im saxa")
 
+	local game = FH.game
+
 	for thing in mapthings.iterate do
 		local x = thing.x*FU
 		local y = thing.y*FU
-		local z = P_FloorzAtPos(thing.x*FU, thing.y*FU, ONFLOORZ, 32*FU)
+		local z = thing.z*FU + P_FloorzAtPos(thing.x*FU, thing.y*FU, ONFLOORZ, 32*FU)
 		---@diagnostic disable-next-line: param-type-mismatch
 		local angle = FixedAngle(thing.angle*FU)
 
@@ -39,7 +43,7 @@ function state:MapLoad()
 		end
 
 		if thing.type == 1 then
-			P_SpawnMobj(thing.x*FU, thing.y*FU, thing.z*FU + 64*FU + P_FloorzAtPos(thing.x*FU, thing.y*FU, ONFLOORZ, 32*FU), MT_FH_ESCAPERING)
+			game.ringLocations[#game.ringLocations+1] = vector.new(x, y, z)
 		end
 	end
 end
@@ -47,11 +51,11 @@ end
 function state:ThinkFrame()
 	local game = FH.game
 	
-	if game.escape then
+	if game.escape and game.tics then
 		game.tics = game.tics - 1
 		
 		if game.tics <= 0 then
-			G_ExitLevel()
+			self:spawnEscapeRing()
 		end
 	end
 end
@@ -78,9 +82,20 @@ end
 
 function state:startEscape()
 	local game = FH.game
-
+	
 	S_ChangeMusic("FH_ESC", true)
 	game.escape = true
+end
+
+function state:spawnEscapeRing()
+	local game = FH.game
+	local location = game.ringLocations[P_RandomRange(1, #game.ringLocations)]
+
+	if location then
+		print(location.y)
+		P_SpawnMobj(location.x, location.y, location.z, MT_FH_ESCAPERING)
+		print("Ring at "..tostring(location))
+	end
 end
 
 COM_AddCommand("escape_start", function()

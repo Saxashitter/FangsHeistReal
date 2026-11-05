@@ -68,7 +68,7 @@ function funcs.grabSign(sign, pmo)
 	pmo.player.heist.sign = grabbed_mobj
 	funcs.setupSign(grabbed_mobj)
 
-	if FH.game.state and FH.game.state.SignGrabbed then
+	if FH.game.state then
 		FH.game.state:SignGrabbed(pmo.player, grabbed_mobj)
 	end
 

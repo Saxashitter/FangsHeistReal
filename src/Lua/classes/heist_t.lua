@@ -11,6 +11,30 @@ heist_t.sign = nil
 --- @type boolean
 heist_t.escaped = false
 
+--- players pressed buttons but not resetted
+--- @type number
+heist_t.buttons = 0
+
+--- players last pressed buttons but not resetted
+--- @type number
+heist_t.lastbuttons = 0
+
+--- players pressed sidemove but not resetted
+--- @type number
+heist_t.sidemove = 0
+
+--- players last pressed sidemove but not resetted
+--- @type number
+heist_t.lastsidemove = 0
+
+--- players pressed forwardmove but not resetted
+--- @type number
+heist_t.forwardmove = 0
+
+--- players last pressed forwardmove but not resetted
+--- @type number
+heist_t.lastforwardmove = 0
+
 --- //////////////////
 --- // PLAYER SETUP //
 --- //////////////////
@@ -36,10 +60,19 @@ if player_t then
 end
 
 addHook("PlayerQuit", function(player)
+	local game = FH.game
+	if game.state then
+		game.state:PlayerQuit(player)
+	end
+
 	FH.players[#player] = nil
 end)
 
 addHook("PlayerJoin", function(node)
+	local game = FH.game
+	if game.state then
+		game.state:PlayerJoin(node)
+	end
 	FH.players[node] = setmetatable({}, heist_t)
 end)
 
