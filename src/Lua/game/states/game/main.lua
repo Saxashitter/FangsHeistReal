@@ -26,19 +26,21 @@ function state:MapLoad()
 	print("hi im saxa")
 
 	for thing in mapthings.iterate do
-		if thing.type ~= 501 then continue end -- not the sign
-
-		print("sign found")
 		local x = thing.x*FU
 		local y = thing.y*FU
-		local z = R_PointInSubsector(x, y).sector.floorheight + thing.z*FU
+		local z = P_FloorzAtPos(thing.x*FU, thing.y*FU, ONFLOORZ, 32*FU)
 		---@diagnostic disable-next-line: param-type-mismatch
 		local angle = FixedAngle(thing.angle*FU)
 
-		-- local sign = P_SpawnMobj(x, y, z, MT_FH_SIGN_IDLE)
-		local sign = signFuncs.setupSign(nil, x, y, z)
-		sign.angle = angle
-		sign.inited = true
+		if thing.type == 501 then
+			local sign = signFuncs.setupSign(nil, x, y, z)
+			sign.angle = angle
+			sign.inited = true
+		end
+
+		if thing.type == 1 then
+			P_SpawnMobj(thing.x*FU, thing.y*FU, thing.z*FU + 64*FU + P_FloorzAtPos(thing.x*FU, thing.y*FU, ONFLOORZ, 32*FU), MT_FH_ESCAPERING)
+		end
 	end
 end
 
